@@ -22,7 +22,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.routers import DefaultRouter
 
-from activities.views import ActivityViewSet
+from activities.views import ActivityViewSet, UserViewSet, TeamViewSet, WorkoutViewSet, LeaderboardViewSet
 
 codespace_name = os.environ.get('CODESPACE_NAME')
 if codespace_name:
@@ -30,17 +30,27 @@ if codespace_name:
 else:
     base_url = "http://localhost:8000"
 
+
 router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
+router.register(r'teams', TeamViewSet, basename='team')
 router.register(r'activities', ActivityViewSet, basename='activity')
+router.register(r'workouts', WorkoutViewSet, basename='workout')
+router.register(r'leaderboard', LeaderboardViewSet, basename='leaderboard')
 
 
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
+        'users': reverse('user-list', request=request, format=format),
+        'teams': reverse('team-list', request=request, format=format),
         'activities': reverse('activity-list', request=request, format=format),
+        'workouts': reverse('workout-list', request=request, format=format),
+        'leaderboard': reverse('leaderboard-list', request=request, format=format),
     })
 
 urlpatterns = [
+    path('', api_root, name='root'),
     path('admin/', admin.site.urls),
     path('api/', api_root, name='api-root'),
     path('api/', include(router.urls)),
